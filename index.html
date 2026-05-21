@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Valuing Your Labor With Fermi Estimation — Spencer, Mar 11 → May 21</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0a0a;
+    --paper:#f4f1ea;
+    --rule:#0a0a0a;
+    --accent:#c2410c;        /* burnt orange */
+    --accent-2:#1e3a5f;      /* deep blue */
+    --muted:#6b6660;
+    --highlight:#fde68a;     /* soft mustard */
+    --grid: rgba(10,10,10,0.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:'Fraunces',Georgia,serif;-webkit-font-smoothing:antialiased}
+  body{
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+    padding: 48px 5vw 96px;
+    min-height:100vh;
+  }
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:-0.01em}
+  .container{max-width:1180px;margin:0 auto}
+
+  /* ============ HEADER ============ */
+  header{
+    border:2px solid var(--ink);
+    background:var(--paper);
+    padding:36px 40px 32px;
+    position:relative;
+    margin-bottom:48px;
+    box-shadow: 8px 8px 0 var(--ink);
+  }
+  .stamp{
+    position:absolute;top:18px;right:24px;
+    border:1.5px solid var(--accent);
+    color:var(--accent);
+    padding:6px 12px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    transform:rotate(2deg);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:18px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:900;
+    font-size:clamp(44px,7vw,92px);
+    line-height:0.92;
+    letter-spacing:-0.03em;
+    margin-bottom:10px;
+  }
+  h1 .italic{font-style:italic;font-weight:300;color:var(--accent)}
+  .subhead{
+    font-size:clamp(16px,1.5vw,20px);
+    color:var(--muted);
+    font-style:italic;
+    max-width:760px;
+    margin-top:14px;
+    line-height:1.45;
+  }
+  .meta-row{
+    display:flex;
+    gap:32px;
+    margin-top:28px;
+    padding-top:20px;
+    border-top:1px dashed var(--ink);
+    flex-wrap:wrap;
+  }
+  .meta-row div{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase}
+  .meta-row b{color:var(--accent)}
+
+  /* ============ THESIS BANNER ============ */
+  .thesis{
+    margin:40px 0 56px;
+    padding:32px 40px;
+    background:var(--ink);
+    color:var(--paper);
+    position:relative;
+  }
+  .thesis::before{
+    content:"";position:absolute;inset:6px;border:1px solid var(--paper);pointer-events:none;
+  }
+  .thesis-eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:0.3em;text-transform:uppercase;
+    color:var(--highlight);margin-bottom:14px;
+  }
+  .thesis p{
+    font-size:clamp(20px,2.4vw,30px);
+    line-height:1.35;
+    font-weight:300;
+    font-style:italic;
+    max-width:900px;
+  }
+  .thesis p em{color:var(--highlight);font-style:normal;font-weight:500}
+
+  /* ============ SECTION HEADINGS ============ */
+  .section-head{
+    display:flex;align-items:baseline;gap:18px;
+    margin:64px 0 28px;
+    padding-bottom:14px;
+    border-bottom:2px solid var(--ink);
+  }
+  .section-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;letter-spacing:0.15em;
+    color:var(--accent);
+    flex-shrink:0;
+  }
+  .section-head h2{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(28px,3.6vw,42px);
+    letter-spacing:-0.02em;
+    line-height:1;
+  }
+
+  /* ============ TECHNIQUE BOX ============ */
+  .technique{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:0;
+    border:2px solid var(--ink);
+  }
+  .technique-step{
+    padding:24px 26px;
+    border-right:1px solid var(--ink);
+    border-bottom:1px solid var(--ink);
+    background:var(--paper);
+  }
+  .technique-step:nth-child(2n){border-right:none}
+  .technique-step:nth-last-child(-n+2){border-bottom:none}
+  .step-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--accent);
+    letter-spacing:0.15em;
+    margin-bottom:6px;
+  }
+  .step-name{
+    font-weight:700;font-size:18px;line-height:1.25;margin-bottom:6px;
+  }
+  .step-detail{font-size:14px;color:var(--muted);line-height:1.45;font-style:italic}
+
+  /* ============ COMPONENTS GRID (Step 1) ============ */
+  .components{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:18px;
+  }
+  .component{
+    border:1.5px solid var(--ink);
+    padding:20px 22px;
+    background:var(--paper);
+    position:relative;
+    transition:transform 0.15s ease;
+  }
+  .component:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
+  .component .tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:0.2em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:8px;
+  }
+  .component h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:20px;
+    line-height:1.15;
+    margin-bottom:10px;
+    letter-spacing:-0.01em;
+  }
+  .component ul{list-style:none;padding:0}
+  .component li{
+    font-size:13px;
+    line-height:1.5;
+    padding-left:14px;
+    position:relative;
+    color:var(--ink);
+    margin-bottom:2px;
+  }
+  .component li::before{
+    content:"▸";position:absolute;left:0;color:var(--accent);font-size:10px;top:2px;
+  }
+
+  /* ============ ESTIMATION TABLE ============ */
+  .calc-table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:'JetBrains Mono',monospace;
+    margin-top:20px;
+    background:var(--paper);
+    border:2px solid var(--ink);
+  }
+  .calc-table th{
+    text-align:left;
+    background:var(--ink);
+    color:var(--paper);
+    padding:14px 18px;
+    font-size:11px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    font-weight:500;
+  }
+  .calc-table th.num{text-align:right}
+  .calc-table td{
+    padding:16px 18px;
+    border-bottom:1px solid rgba(10,10,10,0.12);
+    font-size:13px;
+    vertical-align:top;
+  }
+  .calc-table tr:last-child td{border-bottom:none}
+  .calc-table td.num{text-align:right;font-weight:500;white-space:nowrap}
+  .calc-table .bucket{font-weight:700;color:var(--ink)}
+  .calc-table .basis{color:var(--muted);font-family:'Fraunces',serif;font-style:italic;font-size:14px;line-height:1.4}
+  .calc-table tr.subtotal{background:var(--highlight)}
+  .calc-table tr.subtotal td{font-weight:700;border-top:2px solid var(--ink)}
+  .calc-table tr.total td{
+    background:var(--ink);
+    color:var(--paper);
+    font-size:16px;
+    padding:22px 18px;
+    border:none;
+  }
+  .calc-table tr.total td.num{font-size:22px;letter-spacing:-0.01em}
+
+  /* ============ ANSWER CARD ============ */
+  .answer{
+    margin-top:48px;
+    border:3px solid var(--ink);
+    padding:48px 48px 44px;
+    position:relative;
+    background:var(--paper);
+    box-shadow:12px 12px 0 var(--accent);
+  }
+  .answer-eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:0.3em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:14px;
+  }
+  .answer-number{
+    font-family:'Fraunces',serif;
+    font-weight:900;
+    font-size:clamp(72px,12vw,160px);
+    line-height:0.9;
+    letter-spacing:-0.04em;
+    margin:8px 0 16px;
+  }
+  .answer-number .unit{
+    font-weight:300;font-style:italic;color:var(--accent);font-size:0.5em;
+  }
+  .answer-sub{
+    font-size:clamp(18px,2vw,24px);
+    color:var(--ink);
+    line-height:1.4;
+    max-width:780px;
+    font-style:italic;
+    font-weight:300;
+  }
+  .answer-sub strong{font-style:normal;font-weight:700;color:var(--accent-2)}
+  .annualized{
+    margin-top:28px;padding-top:20px;border-top:1px dashed var(--ink);
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:16px;
+  }
+  .annualized .label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);
+  }
+  .annualized .big{
+    font-family:'Fraunces',serif;
+    font-weight:700;font-size:clamp(28px,4vw,48px);
+    color:var(--ink);letter-spacing:-0.02em;
+  }
+
+  /* ============ FRAME (closing) ============ */
+  .frame{
+    margin-top:64px;
+    padding:36px 40px;
+    border-left:6px solid var(--accent);
+    background:rgba(194,65,12,0.05);
+  }
+  .frame .eyebrow{margin-bottom:12px}
+  .frame h2{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-style:italic;
+    font-size:clamp(24px,3vw,36px);
+    line-height:1.25;
+    letter-spacing:-0.01em;
+    max-width:900px;
+  }
+  .frame h2 b{font-weight:700;font-style:normal}
+
+  /* ============ WINS STRIP ============ */
+  .wins{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:0;border:2px solid var(--ink);margin-top:24px;
+  }
+  .win{
+    padding:24px 24px;
+    border-right:1px solid var(--ink);
+    background:var(--paper);
+  }
+  .win:last-child{border-right:none}
+  .win .name{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:8px;
+  }
+  .win .what{
+    font-family:'Fraunces',serif;font-size:17px;line-height:1.3;font-weight:400;
+  }
+  .win .value{
+    margin-top:12px;padding-top:10px;border-top:1px dotted var(--ink);
+    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink);font-weight:700;
+  }
+
+  /* ============ FOOTER ============ */
+  footer{
+    margin-top:72px;padding-top:24px;border-top:1px solid var(--ink);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);
+  }
+
+  /* Mobile */
+  @media (max-width:720px){
+    body{padding:24px 4vw 64px}
+    header{padding:24px 22px;box-shadow:5px 5px 0 var(--ink)}
+    .technique{grid-template-columns:1fr}
+    .technique-step{border-right:none}
+    .technique-step:not(:last-child){border-bottom:1px solid var(--ink)}
+    .answer{padding:32px 24px;box-shadow:6px 6px 0 var(--accent)}
+    .calc-table td,.calc-table th{padding:10px 12px;font-size:11px}
+    .calc-table .basis{font-size:12px}
+    .wins{grid-template-columns:1fr}
+    .win{border-right:none;border-bottom:1px solid var(--ink)}
+    .win:last-child{border-bottom:none}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ============ HEADER ============ -->
+  <header>
+    <div class="stamp">Internal · Self-Audit</div>
+    <div class="eyebrow">A Fermi Estimation</div>
+    <h1>Valuing<br>My <span class="italic">Labor.</span></h1>
+    <p class="subhead">Applying order-of-magnitude reasoning to ten weeks of work at The Multiverse School — not to renegotiate, but to make the picture legible. This is what I'm bringing to the table.</p>
+    <div class="meta-row">
+      <div>Window <b>March 11 → May 21, 2026</b></div>
+      <div>Duration <b>~10 weeks</b></div>
+      <div>Method <b>Fermi / order-of-magnitude</b></div>
+    </div>
+  </header>
+
+  <!-- ============ THESIS ============ -->
+  <div class="thesis">
+    <div class="thesis-eyebrow">Posture</div>
+    <p>I'm <em>happy with where I am.</em> This isn't a leverage exercise — it's a clear-eyed inventory of the value I'm producing, so that what I'm being compensated for and what I'm <em>actually delivering</em> are both visible on the same page.</p>
+  </div>
+
+  <!-- ============ COMPONENTS ============ -->
+  <div class="section-head">
+    <div class="section-num">§ 01 · Identify the Components</div>
+    <h2>Accomplishments, March 11 → May 21</h2>
+  </div>
+  <div class="components">
+    <div class="component">
+      <div class="tag">A · YouTube cultivation</div>
+      <h3>Entire breakdown of curriculum for YouTube cultivation</h3>
+      <ul>
+        <li>Timecodes of tutorial videos logged</li>
+        <li>Non-video content tracked</li>
+        <li>Org system: tutorials, chapter content, talking head lecture, link page</li>
+        <li>YouTube triage / organization</li>
+        <li>Chapter content test video</li>
+        <li>2 style setting tests for tutorial content</li>
+        <li>Cutdown of 40 min video tutorial (1 hour of footage)</li>
+        <li>Extensive graphics and animation on 40 min video tutorial</li>
+      </ul>
+    </div>
+    <div class="component">
+      <div class="tag">B · Writing</div>
+      <h3>Turning chapter content into scripts</h3>
+      <ul>
+        <li>Scripts for 3 chapters: 27 scripts total</li>
+        <li>Podcast ideation</li>
+        <li>AI paper → podcast ideation / development / writing</li>
+      </ul>
+    </div>
+    <div class="component">
+      <div class="tag">C · Research</div>
+      <h3>Model & opportunity research</h3>
+      <ul>
+        <li>Voice model research</li>
+        <li>Video model research</li>
+        <li>Grants research</li>
+        <li>Job research</li>
+        <li>Dealflow research</li>
+      </ul>
+    </div>
+    <div class="component">
+      <div class="tag">D · Prototyping</div>
+      <h3>Tooling & MMO prototypes</h3>
+      <ul>
+        <li>Prototype of autocut tool for Adobe Premiere Pro</li>
+        <li>Prototype of brainrot graphics generator for Adobe Premiere Pro</li>
+        <li>Map editor prototype with 1k asset library for MMO</li>
+        <li>Mechanic prototype: cursed objects for MMO</li>
+        <li>Mechanic prototype: wearables system for MMO</li>
+      </ul>
+    </div>
+    <div class="component">
+      <div class="tag">E · UI/UX work</div>
+      <h3>Specs, mockups & ticketing</h3>
+      <ul>
+        <li>HTML mock up / spec: enterprise page</li>
+        <li>Bug ticketing for MMO platform</li>
+        <li>Visual mockups for MMO platform tickets — UI/UX work</li>
+        <li>Visual userguide for MMO: change user information</li>
+      </ul>
+    </div>
+    <div class="component">
+      <div class="tag">F · Workshops & curriculum</div>
+      <h3>Instruction & program design</h3>
+      <ul>
+        <li>Workshop: jobsearch (1 hour prep, 1 hour class)</li>
+        <li>Workshop: founding federation (1 hour prep, 1 hour class)</li>
+        <li>Intro to IA en Español initial curriculum template, coordination (workshop)</li>
+        <li>Intro to IA en Español page spec (workshop)</li>
+        <li>SMB cohort setting (workshop skeleton and sales)</li>
+      </ul>
+    </div>
+    <div class="component">
+      <div class="tag">G · Sales & dealflow</div>
+      <h3>Pipeline</h3>
+      <ul>
+        <li>Inbox sales handling</li>
+        <li>SMB cohort setting (workshop skeleton and sales)</li>
+        <li>Dealflow tracking</li>
+        <li>Job placement dealflow</li>
+      </ul>
+    </div>
+    <div class="component">
+      <div class="tag">H · Coordination & community</div>
+      <h3>Ops</h3>
+      <ul>
+        <li>Community moderation and management</li>
+        <li>Coordination between faculty and contractors</li>
+      </ul>
+    </div>
+    <div class="component">
+      <div class="tag">I · Casework & wins</div>
+      <h3>Direct outcomes</h3>
+      <ul>
+        <li>Housing insecurity casework</li>
+        <li>Housing of Fal stabilized</li>
+        <li>Thalia got 160k year job in the middle of student loan collapse</li>
+        <li>Zam LinkedIn virality — and more</li>
+      </ul>
+    </div>
+    <div class="component">
+      <div class="tag">J · Brand & distribution</div>
+      <h3>Footprint deployed for org</h3>
+      <ul>
+        <li>Personal valuable IG footprint benefits org</li>
+        <li>HuffPost article written by my pre-existing long-held IG mutual</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ ESTIMATION ============ -->
+  <div class="section-head">
+    <div class="section-num">§ 02 · Solve Each Step</div>
+    <h2>Order-of-magnitude pricing</h2>
+  </div>
+
+  <table class="calc-table">
+    <thead>
+      <tr>
+        <th style="width:22%">Bucket</th>
+        <th style="width:52%">Basis (market rate, rounded)</th>
+        <th class="num" style="width:26%">Est. Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="bucket">A. YouTube cultivation</td>
+        <td class="basis">40 min tutorial w/ extensive graphics + animation ≈ 50 hrs senior motion @ $100/hr = $5K. Test video, 2 style setting tests, triage / org system. <span class="mono" style="color:var(--accent)">~$8K</span></td>
+        <td class="num">$8,000</td>
+      </tr>
+      <tr>
+        <td class="bucket">B. Writing</td>
+        <td class="basis">27 scripts × $400 ea (educational scriptwriting rate) = $10.8K. Podcast ideation + AI paper → podcast development. <span class="mono" style="color:var(--accent)">~$12K</span></td>
+        <td class="num">$12,000</td>
+      </tr>
+      <tr>
+        <td class="bucket">C. Research</td>
+        <td class="basis">Voice / video model + grants + job + dealflow research ≈ ~60 hrs @ $85/hr = <span class="mono" style="color:var(--accent)">~$5K</span></td>
+        <td class="num">$5,000</td>
+      </tr>
+      <tr>
+        <td class="bucket">D. Prototyping</td>
+        <td class="basis">5 prototypes × ~30 hrs ea @ $125/hr contractor = $18.75K. Round to <span class="mono" style="color:var(--accent)">~$15K</span></td>
+        <td class="num">$15,000</td>
+      </tr>
+      <tr>
+        <td class="bucket">E. UI/UX work</td>
+        <td class="basis">Enterprise page spec, MMO mockups, bug ticketing, visual userguide ≈ ~80 hrs @ $125/hr = <span class="mono" style="color:var(--accent)">~$10K</span></td>
+        <td class="num">$10,000</td>
+      </tr>
+      <tr>
+        <td class="bucket">F. Workshops & curriculum</td>
+        <td class="basis">2 workshops × $1.5K (SME instructor full rate) + Intro to IA en Español curriculum + page spec $3K = <span class="mono" style="color:var(--accent)">~$6K</span></td>
+        <td class="num">$6,000</td>
+      </tr>
+      <tr>
+        <td class="bucket">G. Sales & dealflow</td>
+        <td class="basis">Inbox sales + SMB cohort + dealflow tracking + job placement dealflow (BDR-equivalent loaded cost over 10 wks) <span class="mono" style="color:var(--accent)">~$10K</span></td>
+        <td class="num">$10,000</td>
+      </tr>
+      <tr>
+        <td class="bucket">H. Coordination & community</td>
+        <td class="basis">Community moderation + faculty/contractor coordination ≈ ~80 hrs @ $60/hr = <span class="mono" style="color:var(--accent)">~$5K</span></td>
+        <td class="num">$5,000</td>
+      </tr>
+      <tr>
+        <td class="bucket">I. Casework & wins</td>
+        <td class="basis">Thalia's $160K placement × 20% standard recruiter fee = $32K. Plus Fal housing stabilization casework (~$3K social-work equiv). <span class="mono" style="color:var(--accent)">~$35K</span></td>
+        <td class="num">$35,000</td>
+      </tr>
+      <tr>
+        <td class="bucket">J. Brand & distribution</td>
+        <td class="basis">Personal valuable IG footprint benefits org + HuffPost article written by my pre-existing long-held IG mutual ≈ <span class="mono" style="color:var(--accent)">~$7K</span></td>
+        <td class="num">$7,000</td>
+      </tr>
+      <tr class="subtotal">
+        <td>Subtotal (uncombined)</td>
+        <td class="basis" style="color:var(--ink);font-style:normal;font-weight:600">Ten buckets, summed before rounding.</td>
+        <td class="num">$113,000</td>
+      </tr>
+      <tr class="total">
+        <td>Combined answer</td>
+        <td class="basis" style="color:var(--paper);font-style:normal">Rounded to one significant figure — that's the Fermi rule.</td>
+        <td class="num">≈ $110K</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============ ANSWER ============ -->
+  <div class="section-head">
+    <div class="section-num">§ 03 · Combine Each Step Into An Answer</div>
+    <h2>The estimate</h2>
+  </div>
+
+  <div class="answer">
+    <div class="answer-eyebrow">Value generated · 10 weeks</div>
+    <div class="answer-number">≈ $110<span class="unit">K</span></div>
+    <p class="answer-sub">That's the order-of-magnitude value I delivered to <strong>Multiverse School</strong> between March 11 and May 21 — priced at the rates the open market would charge for each component, then summed and rounded.</p>
+    <div class="annualized">
+      <div>
+        <div class="label">Annualized run-rate equivalent</div>
+        <div class="big">≈ $570K / yr</div>
+      </div>
+      <div>
+        <div class="label">Per-week equivalent</div>
+        <div class="big">≈ $11K / wk</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ WINS ============ -->
+  <div class="section-head">
+    <div class="section-num">§ 04 · Sanity Check</div>
+    <h2>Does this answer make sense?</h2>
+  </div>
+  <p style="font-size:17px;line-height:1.55;max-width:820px;color:var(--ink);font-style:italic;margin-bottom:20px">
+    The deck's last step: <em>determine if the answer you have obtained makes sense.</em> The casework + wins bucket alone — one student landing a 160k year job at standard recruiter economics — accounts for nearly a third of the total. That's the load-bearing line. If anything the estimate is conservative: it doesn't price the compounding value of the IG / HuffPost distribution channel, or the option-value of the prototypes that could become product.
+  </p>
+  <div class="wins">
+    <div class="win">
+      <div class="name">Fal</div>
+      <div class="what">Housing of Fal stabilized.</div>
+      <div class="value">Casework / harm reduction</div>
+    </div>
+    <div class="win">
+      <div class="name">Thalia</div>
+      <div class="what">Thalia got 160k year job in the middle of student loan collapse.</div>
+      <div class="value">≈ $32K placement-fee equiv</div>
+    </div>
+    <div class="win">
+      <div class="name">Zam</div>
+      <div class="what">Zam LinkedIn virality — and more.</div>
+      <div class="value">Org-adjacent brand lift</div>
+    </div>
+    <div class="win">
+      <div class="name">Press</div>
+      <div class="what">HuffPost article written by my pre-existing long-held IG mutual.</div>
+      <div class="value">Personal valuable IG footprint benefits org</div>
+    </div>
+  </div>
+
+  <!-- ============ FRAME ============ -->
+  <div class="frame">
+    <div class="eyebrow">The Frame</div>
+    <h2>I'm not asking for more. I'm <b>showing the shape of the value</b> — so the next conversation about role, scope, or strategy starts from a shared picture of what's already here.</h2>
+  </div>
+
+  <footer>
+    <div>Fermi · After Enrico · 1901–1954</div>
+    <div>Self-audit · Spencer · 05.21.2026</div>
+  </footer>
+
+</div>
+</body>
+</html>
